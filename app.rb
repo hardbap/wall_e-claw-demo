@@ -1,8 +1,13 @@
 #require File.expand_path('../../lib/faye/websocket', __FILE__)
 require 'faye/websocket'
 require 'rack'
+require 'bundler/setup'
+require 'wall_e'
 
 static = Rack::File.new(File.dirname(__FILE__))
+wall_e = WallE::Assembler.create
+servo = wall_e.Servo(9, range: 60..144)
+servo.min
 
 App = lambda do |env|
   if Faye::WebSocket.websocket?(env)
@@ -10,7 +15,12 @@ App = lambda do |env|
     p [:open, ws.url, ws.version, ws.protocol]
 
     ws.onmessage = lambda do |event|
-      ws.send(event.data)
+      begin
+        servo.move_to(event.data.to_i)
+        ws.send(event.data)
+      rescue WallE::Servo::OutOfBoundsError
+        ws.send("Servo doesn't support moving to #{event.data}")
+      end
     end
 
     ws.onclose = lambda do |event|
@@ -19,30 +29,6 @@ App = lambda do |env|
     end
 
     ws.rack_response
-
-  elsif Faye::EventSource.eventsource?(env)
-    es   = Faye::EventSource.new(env)
-    time = es.last_event_id.to_i
-
-    p [:open, es.url, es.last_event_id]
-
-    loop = EM.add_periodic_timer(2) do
-      time += 1
-      es.send("Time: #{time}")
-      EM.add_timer(1) do
-        es.send('Update!!', :event => 'update', :id => time) if es
-      end
-    end
-
-    es.send("Welcome!\n\nThis is an EventSource server.")
-
-    es.onclose = lambda do |event|
-      EM.cancel_timer(loop)
-      p [:close, es.url]
-      es = nil
-    end
-
-    es.rack_response
 
   else
     static.call(env)

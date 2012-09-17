@@ -10,22 +10,26 @@
 
     <input type="text" id="message" />
     <button id="send">Send</button>
+
+    <input type="range" id="slider" step="1" min="60" max="144" value="60" />
+
     <ul></ul>
 
     <script type="text/javascript">
-      var logger = document.getElementsByTagName('ul')[0],
-          Socket = window.MozWebSocket || window.WebSocket,
-          protos = ['foo', 'bar', 'xmpp'],
-          socket = new Socket('ws://' + location.hostname + ':' + location.port + '/', protos),
-          index  = 0;
+      var logger  = document.getElementsByTagName('ul')[0],
+          Socket  = window.MozWebSocket || window.WebSocket,
+          url     = 'ws://' + location.hostname + ':' + location.port + '/',
+          socket  = new Socket(url),
+          button  = document.getElementById('send'),
+          message = document.getElementById('message'),
+          slider  = document.getElementById('slider');
 
       var log = function(text) {
         logger.innerHTML += '<li>' + text + '</li>';
       };
 
       socket.addEventListener('open', function() {
-        log('OPEN: ' + socket.protocol);
-        socket.send('Hello, world');
+        log('OPEN');
       });
 
       socket.onerror = function(event) {
@@ -33,20 +37,21 @@
       };
 
       socket.onmessage = function(event) {
-        log('MESSAGE: ' + event.data);
-//        setTimeout(function() { socket.send(++index + ' ' + event.data) }, 2000);
+        // log('MESSAGE: ' + event.data);
       };
 
       socket.onclose = function(event) {
         log('CLOSE: ' + event.code + ', ' + event.reason);
       };
-    </script>
 
-    <script src="zepto.min.js"></script>
+      button.addEventListener('click', function(e) {
+        socket.send(message.value);
+      });
 
-    <script>
-      $('#send').click(function(e) { socket.send($('#message').val()) });
+      slider.addEventListener('change', function(e) {
+        socket.send(slider.value);
+      });
+
     </script>
   </body>
 </html>
-
