@@ -8,21 +8,20 @@
 
     <h1>WebSocket test</h1>
 
-    <input type="text" id="message" />
-    <button id="send">Send</button>
+    <input type="range" id="claw-slider" step="1" min="60" max="144" value="60" />
 
-    <input type="range" id="slider" step="1" min="60" max="144" value="60" />
+    <input type="range" id="pan-slider" step="1" min="0" max="180" value="90" />
 
     <ul></ul>
 
     <script type="text/javascript">
-      var logger  = document.getElementsByTagName('ul')[0],
-          Socket  = window.MozWebSocket || window.WebSocket,
-          url     = 'ws://' + location.hostname + ':' + location.port + '/',
-          socket  = new Socket(url),
-          button  = document.getElementById('send'),
-          message = document.getElementById('message'),
-          slider  = document.getElementById('slider');
+      var logger      = document.getElementsByTagName('ul')[0],
+          Socket      = window.MozWebSocket || window.WebSocket,
+          url         = 'ws://' + location.hostname + ':' + location.port + '/',
+          socket      = new Socket(url),
+          clawSlider  = document.getElementById('claw-slider'),
+          panSlider   = document.getElementById('pan-slider'),
+          handler     = function(e) { socket.send(e.target.value); };
 
       var log = function(text) {
         logger.innerHTML += '<li>' + text + '</li>';
@@ -44,13 +43,8 @@
         log('CLOSE: ' + event.code + ', ' + event.reason);
       };
 
-      button.addEventListener('click', function(e) {
-        socket.send(message.value);
-      });
-
-      slider.addEventListener('change', function(e) {
-        socket.send(slider.value);
-      });
+      clawSlider.addEventListener('change', handler);
+      panSlider.addEventListener('change', handler);
 
     </script>
   </body>
