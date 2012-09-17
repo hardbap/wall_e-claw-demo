@@ -53,7 +53,7 @@
         border-spacing: 0;
       }
 
-      #claw-slider {
+      #claw {
         -webkit-transform: rotate(-90deg);
         -moz-transform: rotate(-90deg);
         -o-transform: rotate(-90deg);
@@ -121,23 +121,23 @@
 
     <section id="controls">
 
-      <input type="range" id="claw-slider" name="claw-slider" step="1" min="60" max="144" value="60" />
+      <input type="range" id="claw" name="claw" step="1" min="60" max="144" value="60" />
 
-      <input type="range" id="pan-slider" name="pan-slider" step="1" min="0" max="180" value="90" />
+      <input type="range" id="pan" name="pan" step="1" min="0" max="180" value="90" />
     </section>
 
     <section>
-      <label for="claw-slider">Claw</label>
-      <label for="pan-slider">Pan/Tilt</label>
+      <label for="claw">Claw</label>
+      <label for="pan">Pan/Tilt</label>
     </section>
 
     <script type="text/javascript">
       var Socket      = window.MozWebSocket || window.WebSocket,
           url         = 'ws://' + location.hostname + ':' + location.port + '/',
           socket      = new Socket(url),
-          clawSlider  = document.getElementById('claw-slider'),
-          panSlider   = document.getElementById('pan-slider'),
-          handler     = function(e) { socket.send(e.target.value); };
+          clawSlider  = document.getElementById('claw'),
+          panSlider   = document.getElementById('pan'),
+          handler     = function(e) { socket.send(e.target.id + ':' + e.target.value.toString()); };
 
 
       socket.addEventListener('open', function() {
@@ -149,7 +149,7 @@
       };
 
       socket.onmessage = function(event) {
-        // console.log('MESSAGE: ' + event.data);
+        console.log('MESSAGE: ' + event.data);
       };
 
       socket.onclose = function(event) {

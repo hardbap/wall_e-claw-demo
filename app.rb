@@ -6,8 +6,8 @@ require 'wall_e'
 
 static = Rack::File.new(File.dirname(__FILE__))
 wall_e = WallE::Assembler.create
-servo = wall_e.Servo(9, range: 60..144)
-servo.min
+claw = wall_e.Claw(10, 9)
+claw.center
 
 App = lambda do |env|
   if Faye::WebSocket.websocket?(env)
@@ -15,12 +15,11 @@ App = lambda do |env|
     p [:open, ws.url, ws.version, ws.protocol]
 
     ws.onmessage = lambda do |event|
-      begin
-        servo.move_to(event.data.to_i)
-        ws.send(event.data)
-      rescue WallE::Servo::OutOfBoundsError
-        ws.send("Servo doesn't support moving to #{event.data}")
-      end
+      servo, degrees = event.data.split(":")
+      msg = "Moved the #{servo} #{degrees} degrees"
+      what = servo == 'claw' ? :pinch : :tilt
+      claw.send(what, degrees.to_i)
+      ws.send(msg)
     end
 
     ws.onclose = lambda do |event|
