@@ -2,45 +2,158 @@
 <html>
   <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8">
-    <title>WebSocket test</title>
+    <title>Wall&middot;E &mdash; Robotic Claw Example</title>
+    <style>
+      /* http://meyerweb.com/eric/tools/css/reset/
+         v2.0 | 20110126
+         License: none (public domain)
+      */
+
+      html, body, div, span, applet, object, iframe,
+      h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+      a, abbr, acronym, address, big, cite, code,
+      del, dfn, em, img, ins, kbd, q, s, samp,
+      small, strike, strong, sub, sup, tt, var,
+      b, u, i, center,
+      dl, dt, dd, ol, ul, li,
+      fieldset, form, label, legend,
+      table, caption, tbody, tfoot, thead, tr, th, td,
+      article, aside, canvas, details, embed,
+      figure, figcaption, footer, header, hgroup,
+      menu, nav, output, ruby, section, summary,
+      time, mark, audio, video {
+        margin: 0;
+        padding: 0;
+        border: 0;
+        font-size: 100%;
+        font: inherit;
+        vertical-align: baseline;
+      }
+      /* HTML5 display-role reset for older browsers */
+      article, aside, details, figcaption, figure,
+      footer, header, hgroup, menu, nav, section {
+        display: block;
+      }
+      body {
+        line-height: 1;
+      }
+      ol, ul {
+        list-style: none;
+      }
+      blockquote, q {
+        quotes: none;
+      }
+      blockquote:before, blockquote:after,
+      q:before, q:after {
+        content: '';
+        content: none;
+      }
+      table {
+        border-collapse: collapse;
+        border-spacing: 0;
+      }
+
+      #claw-slider {
+        -webkit-transform: rotate(-90deg);
+        -moz-transform: rotate(-90deg);
+        -o-transform: rotate(-90deg);
+        transform: rotate(-90deg);
+      }
+
+      body {
+        margin: 80px 200px;
+        font-family: Frutiger, "Frutiger Linotype", Univers, Calibri, "Gill Sans", "Gill Sans MT", "Myriad Pro", Myriad, "DejaVu Sans Condensed", "Liberation Sans", "Nimbus Sans L", Tahoma, Geneva, "Helvetica Neue", Helvetica, Arial, sans-serif;
+      }
+
+      section {
+        margin-bottom: 50px;
+      }
+
+      section#controls {
+        margin-top: 140px;
+      }
+
+      section#hardware-list {
+        float: left;
+        margin-right: 40px;
+      }
+
+      section header h1 {
+        font-size: 20px;
+      }
+
+      ul li {
+        padding: 5px 0;
+      }
+
+      label {
+        font-size: 18px;
+        margin-left: 50px;
+        padding-top: 30px;
+        display: inline-block;
+      }
+
+      label[for="pan-slider"] {
+        margin-left: 85px;
+      }
+    </style>
   </head>
   <body>
 
-    <h1>WebSocket test</h1>
+    <section id="hardware-list">
+      <header><h1>Hardware List</h1></header>
+      <ul>
+        <li><a href="http://www.sparkfun.com/products/10332">Robotic Claw</a></li>
+        <li><a href="http://www.sparkfun.com/products/10826">Pan/Tilt Bracket</a></li>
+        <li><a href="http://www.sparkfun.com/products/10826">Medium Servo</a><li>
+      </ul>
+    </section>
 
-    <input type="range" id="claw-slider" step="1" min="60" max="144" value="60" />
+    <section id="software-list">
+      <header><h1>Software List</h1></header>
+      <ul>
+        <li><a href="http://www.ruby-lang.org/en/">Ruby 1.9.3</a>
+        <li><a href="http://code.macournoyer.com/thin/">Thin</a></li>
+        <li><a href="http://faye.jcoglan.com/">Faye</a></li>
+        <li><a href="https://github.com/hardbap/wall_e">Wall&middot;E</a></li>
+      </ul>
+    </section>
 
-    <input type="range" id="pan-slider" step="1" min="0" max="180" value="90" />
+    <section id="controls">
 
-    <ul></ul>
+      <input type="range" id="claw-slider" name="claw-slider" step="1" min="60" max="144" value="60" />
+
+      <input type="range" id="pan-slider" name="pan-slider" step="1" min="0" max="180" value="90" />
+    </section>
+
+    <section>
+      <label for="claw-slider">Claw</label>
+      <label for="pan-slider">Pan/Tilt</label>
+    </section>
 
     <script type="text/javascript">
-      var logger      = document.getElementsByTagName('ul')[0],
-          Socket      = window.MozWebSocket || window.WebSocket,
+      var Socket      = window.MozWebSocket || window.WebSocket,
           url         = 'ws://' + location.hostname + ':' + location.port + '/',
           socket      = new Socket(url),
           clawSlider  = document.getElementById('claw-slider'),
           panSlider   = document.getElementById('pan-slider'),
           handler     = function(e) { socket.send(e.target.value); };
 
-      var log = function(text) {
-        logger.innerHTML += '<li>' + text + '</li>';
-      };
 
       socket.addEventListener('open', function() {
-        log('OPEN');
+        console.log('OPEN');
       });
 
       socket.onerror = function(event) {
-        log('ERROR: ' + event.message);
+        console.log('ERROR: ' + event.message);
       };
 
       socket.onmessage = function(event) {
-        // log('MESSAGE: ' + event.data);
+        // console.log('MESSAGE: ' + event.data);
       };
 
       socket.onclose = function(event) {
-        log('CLOSE: ' + event.code + ', ' + event.reason);
+        console.log('CLOSE: ' + event.code + ', ' + event.reason);
       };
 
       clawSlider.addEventListener('change', handler);
